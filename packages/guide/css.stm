@@ -1,0 +1,5 @@
+•(newmacro){
+    name: testcss
+    format: css
+    template: hi
+}

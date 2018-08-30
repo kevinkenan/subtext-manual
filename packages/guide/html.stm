@@ -1,0 +1,438 @@
+
+•(newmacro*){
+    name: basic
+    format: html
+    block: true
+    template: |-
+        <!DOCTYPE html>
+        <html lang="en" class="single_default">
+        <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="tufte.css"/>
+        <link rel="stylesheet" href="guide.css"/>
+        </head>
+        <body>
+        <section>
+        [[ .Body -]]
+        </section>
+        </body>
+        </html>
+*}
+
+•(newmacro*){
+    name: doc.begin
+    format: html
+    block: true
+    template: |-
+        <!DOCTYPE html>
+        <html lang="en" class="single_default">
+        <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <link rel="stylesheet" href="tufte.css"/>
+        <link rel="stylesheet" href="guide.css"/>
+        </head>
+        <body>
+        <section>
+*}
+
+•(newmacro*){
+    name: doc.end
+    format: html
+    block: true
+    template: |-
+        </section>
+        </body>
+        </html>
+*}
+
+•(newmacro*){
+    name: title
+    format: html
+    block: true
+    optionals: {"subtitle": ""}
+    template: |
+        <h1 class="page-title">[[ .Doc.Title ]]</h1>
+        [[ if .subtitle ]]<p class="subtitle">[[ .subtitle ]]</p>[[ end -]]
+*}
+
+•(newmacro*){
+    name: testsection
+    format: html
+    block: true
+    parameters: ["title", "ref"]
+    template: >-
+        <h2>[[ .title -]]
+        •(refdef)[{[[ .ref ]]}{[[ .title -]]}]
+        •(refdef)[{[[ .ref ]]-ctr}{[[ getdata "testcounter" "0" -]]}]
+        </h2>
+*}
+
+•(exec){[[ setdata "counter/section" 0 ]]}
+
+•(newmacro*){
+    name: section
+    format: html
+    block: true
+    parameters: ["sec"]
+    optionals: {"ref": ""}
+    init: '[[- add 1 (getdata "counter/section" "0") | setdata "counter/section" -]]'
+    template:  >-
+        <h2>[[ getdata "counter/section" "0"  ]]. [[ .sec -]]
+        •(refdef)[{[[ .ref ]]}{[[ .sec -]]}]
+        •(refdef)[{[[ .ref ]]-ctr}{[[ getdata "counter/section" "0" -]]}]
+        </h2>
+*}
+
+•(newmacro*){
+    name: secnum
+    parameters: ["sec"]
+    template: "•(ref){[[ .sec ]]-ctr}"
+*}
+
+•(newmacro*){
+    name: secname
+    parameters: ["sec"]
+    template: "•(ref){[[ .sec ]]}"
+*}
+
+•(newmacro){
+    name: subsection
+    format: html
+    block: true
+    parameters: ["p"]
+    template: <h3>[[ .p ]]</h3>
+}
+
+•(exec){[[ setdata "snref" 0 ]]}
+
+•(newmacro){
+    name: sidenote
+    format: html
+    parameters: ["text"]
+    template: |-
+        <label for="sn-[[ .Data.snref ]]" class="margin-toggle sidenote-number"></label>
+        <input type="checkbox" id="sn-[[ .Data.snref ]]" class="margin-toggle"/>
+        <span class="sidenote">[[ .text ]]</span>
+        [[- getdata "snref" "0" | add 1 | setdata "snref" ]]
+}
+
+•(exec){[[ setdata "mnref" 0 ]]}
+
+•(newmacro){
+    name: marginnote
+    format: html
+    parameters: ["text"]
+    template: |-
+        <label for="mn-[[ .Data.mnref ]]" class="margin-toggle"></label>
+        <input type="checkbox" id="mn-[[ .Data.mnref ]]" class="margin-toggle"/>
+        <span class="marginnote">[[ .text ]]</span>
+        [[- getdata "mnref" "0" | add 1 | setdata "mnref" ]]
+}
+
+•(newmacro){
+    name: epigraphs
+    format: html
+    block: true
+    parameters: ["p"]
+    template: |-
+        <div class="epigraph">
+        [[- .p -]]
+        </div>
+}
+
+•(newmacro){
+    name: epigraph
+    format: html
+    block: true
+    series: true
+    parameters: ["quote", "attr"]
+    template: |-
+        <blockquote>
+        [[ if (.FlagSet "nopar") ]][[ .quote ]][[ else ]]<p>[[ .quote ]]</p>[[ end ]]
+        <footer>[[ .attr ]]</footer>
+        </blockquote>
+}
+
+•(newmacro){
+    name: emph
+    format: html
+    parameters: ["p"]
+    template: "<i>[[ .p ]]</i>"
+}
+
+•(newmacro*){
+    name: paragraph.begin
+    format: html
+    template: >-
+        <p>
+*}
+
+•(newmacro){
+    name: paragraph.end
+    format: html
+    template: >
+        </p>
+}
+
+•(newmacro*){
+    name: itemlist
+    format: html
+    #block: true
+    series: true
+    parameters: ["p"]
+    init: >-
+        [[ if (getdata "flags" "" | len | eq 0) ]]
+        [[ setdata "list/num" 0 ]]
+        [[ end ]]
+    template: |-
+        <ul>
+        `•%[[ .p ]]
+        </ul>
+*}
+
+•(newmacro){
+    name: item
+    format: html
+    #block: true
+    series: true
+    parameters: ["p"]
+    template: >-
+        [[- $n := getdata "list/num" "" ]]
+        [[- if (gt $n 0) ]][[ print "\n" ]][[ end -]]
+        <li>[[ .p ]]</li>
+        [[- add 1 $n | setdata "list/num" ]]
+}
+
+•(newmacro){
+    name: enum
+    format: html
+    block: true
+    series: true
+    parameters: ["p"]
+    template: >-
+        [[- $n := getdata "list/num" "" -]]
+        <li>[[ $n ]]. [[ .p ]]</li>
+        [[- add 1 $n | setdata "list/num" -]]
+}
+
+•(newmacro){
+    name: marginitem
+    format: html
+    parameters: ["p"]
+    template: <span class="marginitem">[[ .p ]]</span><br>
+}
+
+-------------------------------------------------------------------------------
+Tables
+
+•(newmacro*){
+    name: tableOLD
+    format: html
+    block: true
+    series: true
+    optionals: {"header": "", "class": "", "id": ""}
+    parameters: ["body"]
+    init: '[[ setdata "firstrow" true ]]'
+    template: |-
+        <table [[- if .class ]] class="[[ .class ]]"[[ end ]][[- if .id ]] id="[[ .id ]]"[[ end -]]>
+        [[- if .header ]]
+        <thead>
+        [[- setdata "context" "table.header" -]]
+        [[- .header -]]
+        </thead>
+        [[- end ]]
+        <tbody>
+        [[- .body -]]
+        </tbody>
+        </table>
+*}
+
+•(newmacro*){
+    name: table
+    format: html
+    block: true
+    series: true
+    optionals: {"header": "", "class": "", "id": ""}
+    parameters: ["body"]
+    template: |-
+        <table [[- if .class ]] class="[[ .class ]]"[[ end ]][[- if .id ]] id="[[ .id ]]"[[ end -]]>
+        [[- if .header ]]
+        •thead{[[ .header ]]}
+        [[- end ]]
+        <tbody>
+        [[- .body -]]
+        </tbody>
+        </table>
+*}
+
+•(newmacro*){
+    name: thead
+    format: html
+    block: true
+    series: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["body"]
+    init: '[[- setdata "context" "table.header" -]]'
+    template: 
+        <thead>
+        [[- .body -]]
+        </thead>
+*}
+
+•(newmacro*){
+    name: trow
+    format: html
+    block: true
+    series: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["body"]
+    template: |-
+        <tr[[ if .class ]] class="[[ .class ]]"[[ end ]][[- if .id ]] id="[[ .id ]]"[[ end ]]>
+        [[ .body -]]
+        [[- setdata "firstrow" false -]]
+        </tr>
+*}
+
+•(newmacro*){
+    name: frow
+    format: html
+    block: true
+    series: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["body"]
+    template: "•trow[class={firstrow} body={[[ .body ]]}]"
+*}
+
+•(newmacro*){
+    name: tcell
+    format: html
+    block: true
+    series: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["body"]
+    template: |-
+        [[- setdata "tcell" "td" -]]
+        [[- if (join "," .Context | contains "table,#header") ]][[ setdata "tcell" "th" ]][[ end -]]
+        [[- $tag := getdata "tcell" "td" -]]
+        <[[ $tag ]][[- if .class ]] class="[[ .class ]]"[[ end ]][[- if .id ]] id="[[ .id ]]"[[ end -]]>
+        [[- .body -]]
+        </[[ $tag ]]>
+*}
+
+•(newmacro*){
+    name: glyphcell
+    format: html
+    block: true
+    series: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["body"]
+    template: |-
+        [[- setdata "tcell" "td" -]]
+        [[- if (join "," .Context | contains "table,#header") ]][[ setdata "tcell" "th" ]][[ end -]]
+        [[- $tag := getdata "tcell" "td" -]]
+        <[[ $tag ]] style="text-align: center"[[- if .class ]] class="[[ .class ]]"[[ end ]][[- if .id ]] id="[[ .id ]]"[[ end -]]>
+        <span class="glyph">[[- .body -]]&nbsp;&nbsp;</span>
+        </[[ $tag ]]>
+*}
+
+-------------------------------------------------------------------------------
+Miscellaneous
+
+•(newmacro){
+    name: keystroke
+    format: html
+    parameters: ["p"]
+    template: <span class="sans">[[ .p ]]</span>
+}
+
+•(newmacro){
+    name: code
+    format: html
+    parameters: ["p"]
+    template: <code>[[ .p ]]</code>
+}
+
+•(newmacro*){
+    name: codeblock
+    format: html
+    block: true
+    optionals: {"class": "", "id": ""}
+    parameters: ["p"]
+    template: <pre class="code [[- if .class ]] [[ .class ]][[ end ]]" [[- if .id ]] id="[[ .id ]]"[[ end -]]>[[ html .p ]]</pre>
+    
+*}
+
+•(newmacro){
+    name: link
+    format: html
+    parameters: ["url", "text"]
+    template: <a href="[[ .url ]]">[[ .text ]]</a>
+}
+•(newmacro){
+    name: booktitle
+    format: html
+    parameters: ["p"]
+    template: "<i>[[ .p ]]</i>"
+}
+
+This produces a linebreak in the output file.
+•(newmacro){
+    name: lb
+    format: html
+    template: '[[ print "\n" ]]'
+}
+
+•(newmacro){
+    name: br
+    format: html
+    template: <br>
+}
+
+•(newmacro){
+    name: sc
+    format: html
+    parameters: ["p"]
+    template: <span class="sc">[[ .p ]]</span>
+}
+
+•(newmacro*){
+    name: html
+    format: html
+    template: "•sc{html}"
+*}
+
+•(newmacro){
+    name: tex
+    format: html
+    template: <span class="latex">T<span class="latex-sub">e</span>X</span>
+}
+
+•(newmacro){
+    name: latex
+    format: html
+    template: <span class="latex">L<span class="latex-sup">a</span>T<span class="latex-sub">e</span>X</span>
+}
+
+•(newmacro){
+    name: st
+    format: html
+    template: <i>subtext</i>
+}
+
+•(newmacro){
+    name: cmd
+    parameters: ["p"]
+    template: "<code>[[ .p  ]]</code>"
+}
+
+◊•(newmacro){
+◊    name: dq
+◊    parameters: ["p"]
+◊    template: "“[[ .p  ]]”"
+◊}
+◊
+◊•(newmacro){
+◊    name: sq
+◊    parameters: ["p"]
+◊    template: "‘[[ .p  ]]’"
+◊}

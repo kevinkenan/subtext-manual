@@ -1,0 +1,51 @@
+
+•(newmacro){
+    name: basic
+    format: md
+    block: true
+    template: |-
+        [[ .Doc.Output -]]
+}
+
+•(newmacro*){
+    name: title
+    format: md
+    block: true
+    optionals: {"subtitle": ""}
+    template: |
+        `# [[ .Doc.Title ]]
+
+        [[ if .subtitle ]]*[[ .subtitle ]]*[[ print "\n" ]][[ end -]]
+*}
+
+•(newmacro*){
+    name: paragraph.begin
+    format: md
+    template: ""
+*}
+
+•(newmacro){
+    name: paragraph.end
+    format: md
+    template: "\n\n"
+}
+
+•(newmacro){
+    name: sc
+    format: md
+    parameters: ["p"]
+    template: "[[ upper .p ]]"
+}
+
+•(newmacro){
+    name: latex
+    format: md
+    template: LaTeX
+}
+
+•(newmacro){
+    name: st
+    format: md
+    template: "*subtext*"
+}
+
