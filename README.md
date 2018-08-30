@@ -1,3 +1,4 @@
-This repo contains the manual for [Subtext](https://github.com/kevinkenan/subtext).
-
-It is also meant to be used as a Subtext example.
+This repo contains the source for the
+[Subtext](https://github.com/kevinkenan/subtext) manual. The generated manual
+is [online](https://kevinkenan.github.io/subtext/index.html), but the source
+code is presented here as an example of Subtext's use.
